@@ -1,19 +1,47 @@
-import React from 'react';
+/** @jsxImportSource @emotion/react */
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import Roteador from './routes/routes';
+import { css, Global, ThemeProvider } from '@emotion/react';
+import { createTheme } from '@mui/material';
+
+const theme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <ThemeProvider theme={theme}>
+    {
+      theme.palette.mode === "dark" ?
+        <Global
+          styles={css`
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          body {
+            background-color: #303235;
+          }
+        `}
+        /> :
+        <Global
+          styles={css`
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          body {
+            background-color: GhostWhite;
+          }
+        `}
+        />
+    }
+    <Roteador />
+  </ThemeProvider>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
