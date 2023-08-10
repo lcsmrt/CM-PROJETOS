@@ -1,4 +1,9 @@
 export const formataDataBRParaISO = (dataBR: string) => {
-  const [dia, mes, ano] = dataBR.split(' / ');
-  return `${ano}-${mes}-${dia}`;
+  if (dataBR) {
+    const [dia, mes, ano] = dataBR.split(' / ');
+    return `${ano}-${mes}-${dia}`;
+  }
+  else {
+    return ""
+  }
 };

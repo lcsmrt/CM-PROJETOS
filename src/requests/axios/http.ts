@@ -1,21 +1,23 @@
-import axios from 'axios'
+import axios from "axios";
 
-function criarRequisicaoHTTP() {
+const criarRequisicaoHTTP = () => {
   const requisicaoHTTP = axios.create({
     baseURL: `http://192.168.228.8:8082`,
   })
 
   requisicaoHTTP.interceptors.request.use(function (config) {
-    const token = sessionStorage.getItem('token')
+    const token = sessionStorage.getItem("token");
     if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
-  }, function (error) {
-    return Promise.reject(error)
-  })
 
-  return requisicaoHTTP
+    return config;
+  },
+    function (error) {
+      return Promise.reject(error);
+    })
+
+  return requisicaoHTTP;
 }
 
-export default criarRequisicaoHTTP
+export default criarRequisicaoHTTP;

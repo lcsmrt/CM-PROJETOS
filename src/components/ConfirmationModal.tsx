@@ -15,7 +15,7 @@ export interface IConfirmationModal {
 
 const ConfirmationModal: React.FC<IConfirmationModal> = ({ ...props }) => {
   return (
-    <Dialog open={props.open} onClose={props.onCancel} sx={{}}>
+    <Dialog open={props.open} onClose={props.onCancel}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{props.message}</DialogContentText>

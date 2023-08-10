@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { useEffect, useState } from "react";
 import StickyHeadTable, { Coluna } from "../../components/StickyHeadTable";
 import { Box, CircularProgress, Container } from "@mui/material";
@@ -14,27 +13,28 @@ import ConfirmationModal, { IConfirmationModal } from "../../components/Confirma
 import { formataDinheiro } from "../../utils/formataDinheiro";
 import { formataDataISOParaBR } from "../../utils/formataDataISOParaBR";
 import { formataDataBRParaISO } from "../../utils/formataDataBRparaISO";
+import ISituacao from "../../types/situacao";
+import usePostFile from "../../requests/axios/postFile";
 
 export default function Projetos() {
-  // NAVEGAÇÃO
-  const params = useParams();
-
-  const idProjeto = params.id;
+  // FLAGS
+  const idProjeto = useParams().id;
   const [idRevisao, setIdRevisao] = useState<string | number>("");
+  const [flagGetRevisoes, setFlagGetRevisoes] = useState(0);
+  const [flagGetAcoes, setFlagGetAcoes] = useState(0);
 
-  const armazenaIdRevisao = (id: number) => {
-    setIdRevisao(id);
-  };
+  const [situacaoRevisao, setSituacaoRevisao] = useState<ISituacao | null>(null);
+  const [situacaoAcao, setSituacaoAcao] = useState<ISituacao | null>(null);
 
   // REQUISIÇÕES
+  const { dados: dadosSituacoes, carregando: carregandoSituacoes } = useGet<ISituacao[]>("util/status", [])
+  const { dados: dadosRevisoes, carregando: carregandoRevisoes } = useGet<IRevisao[]>(`revisao/${idProjeto}`, [flagGetRevisoes]);
+  const { dados: dadosAcoes, carregando: carregandoAcoes } = useGet<IAcao[]>(`acao/${idRevisao}`, [flagGetAcoes]);
+  const { post, carregando: carregandoPost } = usePost();
+  const { postFile, carregando: carregandoPostFile } = usePostFile();
+  const { put, carregando: carregandoPut } = usePut();
+  const { del, carregando: carregandoDelete } = useDelete();
   const [carregando, setCarregando] = useState(false);
-  const [flagGetRevisoes, setFlagGetRevisoes] = useState(0);
-  const { dados: dadosRevisoes, carregando: carregandoRevisoes, erro: erroRevisoes } = useGet<IRevisao[]>(`revisao/${idProjeto}`, [flagGetRevisoes]);
-  const [flagGetAcoes, setFlagGetAcoes] = useState(0);
-  const { dados: dadosAcoes, carregando: carregandoAcoes, erro: erroAcoes } = useGet<IAcao[]>(`acao/${idRevisao}`, [flagGetAcoes]);
-  const { post, carregando: carregandoPost, erro: erroPost } = usePost();
-  const { put, carregando: carregandoPut, erro: erroPut } = usePut();
-  const { del, carregando: carregandoDelete, erro: erroDelete } = useDelete();
 
   // SNACKBAR
   const [snackbar, setSnackbar] = useState<IBasicSnackbar>({
@@ -51,8 +51,13 @@ export default function Projetos() {
     onCancel: () => null
   });
 
-  // TABELAS
+  // SITUAÇÕES
+  const [situacoes, setSituacoes] = useState<ISituacao[]>([]);
+
+  // TABELA REVISÃO
   const [modoTabelaRevisao, setModoTabelaRevisao] = useState<"add" | "edit" | "view">("view");
+  const [revisoes, setRevisoes] = useState<IRevisao[]>([]);
+  const [revisoesBackup, setRevisoesBackup] = useState<IRevisao[]>([]);
   const colunasRevisoes: Coluna[] = [
     {
       id: "id",
@@ -70,14 +75,14 @@ export default function Projetos() {
     {
       id: "descricao",
       label: "Descrição",
-      minWidth: 180,
-      maxWidth: 180
+      minWidth: 250,
+      maxWidth: 250
     },
     {
       id: "justificativa",
       label: "Justificativa",
-      minWidth: 180,
-      maxWidth: 180
+      minWidth: 220,
+      maxWidth: 220
     },
     {
       id: "solicitante",
@@ -96,6 +101,22 @@ export default function Projetos() {
       label: "Executor",
       minWidth: 140,
       maxWidth: 140
+    },
+    {
+      id: "situacao",
+      label: "Situação",
+      minWidth: 150,
+      maxWidth: 150,
+      comboBoxProps: {
+        options: situacoes,
+        displayKey: "nome",
+        valueKey: "id",
+        value: situacaoRevisao,
+        onChange: (newValue) => {
+          console.log(newValue)
+          setSituacaoRevisao(newValue)
+        }
+      }
     },
     {
       id: "tipo",
@@ -120,6 +141,9 @@ export default function Projetos() {
         if (typeof (value) === "string" && value !== "") {
           return formataDinheiro(value);
         }
+        else if (!value) {
+          return ""
+        }
         return String(value);
       }
     },
@@ -134,6 +158,9 @@ export default function Projetos() {
         if (typeof (value) === "string" && value !== "") {
           return formataDataISOParaBR(value);
         }
+        else if (!value) {
+          return ""
+        }
         return String(value);
       }
     },
@@ -148,20 +175,24 @@ export default function Projetos() {
         if (typeof (value) === "string" && value !== "") {
           return formataDataISOParaBR(value);
         }
+        else if (!value) {
+          return ""
+        }
         return String(value);
       }
     },
   ];
-  const [revisoes, setRevisoes] = useState<IRevisao[]>([]);
-  const [revisoesBackup, setRevisoesBackup] = useState<IRevisao[]>([]);
 
+  // TABELA AÇÃO
   const [modoTabelaAcao, setModoTabelaAcao] = useState<"add" | "edit" | "view">("view");
+  const [acoes, setAcoes] = useState<IAcao[]>([]);
+  const [acoesBackup, setAcoesBackup] = useState<IAcao[]>([]);
   const colunasAcoes: Coluna[] = [
     {
       id: "id",
       label: "Código",
-      minWidth: 50,
-      maxWidth: 50,
+      minWidth: 70,
+      maxWidth: 70,
       readonly: true
     },
     {
@@ -173,8 +204,8 @@ export default function Projetos() {
     {
       id: "descricao",
       label: "Descrição",
-      minWidth: 180,
-      maxWidth: 180
+      minWidth: 250,
+      maxWidth: 250
     },
     {
       id: "cliente",
@@ -189,19 +220,33 @@ export default function Projetos() {
       maxWidth: 140
     },
     {
+      id: "situacao",
+      label: "Situação",
+      minWidth: 150,
+      maxWidth: 150,
+      comboBoxProps: {
+        options: situacoes,
+        displayKey: "nome",
+        valueKey: "id",
+        value: situacaoAcao,
+        onChange: (newValue) => {
+          console.log(newValue)
+          setSituacaoAcao(newValue)
+        }
+      }
+    },
+    {
       id: "dataPrevista",
       label: "Previsão",
-      minWidth: 100,
-      maxWidth: 100,
+      minWidth: 120,
+      maxWidth: 120,
       maskType: "date",
       format: (value: number | string) => {
         if (typeof (value) === "string" && value !== "") {
-          const data = new Date(value)
-          const dia = String(data.getDate()).padStart(2, "0");
-          const mes = String(data.getMonth() + 1).padStart(2, "0");
-          const ano = data.getFullYear();
-
-          return `${dia} / ${mes} / ${ano}`;
+          return formataDataISOParaBR(value);
+        }
+        else if (!value) {
+          return ""
         }
         return String(value);
       }
@@ -209,26 +254,23 @@ export default function Projetos() {
     {
       id: "dataCriacao",
       label: "Criação",
-      minWidth: 100,
-      maxWidth: 100,
+      minWidth: 120,
+      maxWidth: 120,
       align: "right",
       readonly: true,
       format: (value: number | string) => {
         if (typeof (value) === "string" && value !== "") {
-          const data = new Date(value)
-          const dia = String(data.getDate()).padStart(2, "0");
-          const mes = String(data.getMonth() + 1).padStart(2, "0");
-          const ano = data.getFullYear();
-
-          return `${dia} / ${mes} / ${ano}`;
+          return formataDataISOParaBR(value);
+        }
+        else if (!value) {
+          return ""
         }
         return String(value);
       }
     },
-  ]
-  const [acoes, setAcoes] = useState<IAcao[]>([]);
-  const [acoesBackup, setAcoesBackup] = useState<IAcao[]>([]);
+  ];
 
+  // FUNÇÕES REVISÃO
   const adicionarRevisao = () => {
     setModoTabelaRevisao("add");
 
@@ -248,10 +290,21 @@ export default function Projetos() {
     }
 
     setRevisoes([novaRevisao, ...revisoes]);
+    setSituacaoRevisao(null);
   };
-  const editarRevisao = () => {
+  const editarRevisao = (idRevisao: number) => {
     setModoTabelaRevisao("edit");
     setRevisoesBackup(revisoes);
+
+    const revisaoSelecionada = revisoes.find(revisao => revisao.id === idRevisao);
+    if (revisaoSelecionada) {
+      const stringSituacaoRevisaoSelecionada = revisaoSelecionada.situacao;
+      const objetoSituacaoRevisaoSelecionada = situacoes.find(situacao => situacao.nome === stringSituacaoRevisaoSelecionada);
+
+      if (objetoSituacaoRevisaoSelecionada) {
+        setSituacaoRevisao(objetoSituacaoRevisaoSelecionada);
+      }
+    }
   };
   const alterarRevisao = (novaPropriedade: any, idRevisao: number, nomePropriedade: string) => {
     setRevisoes((prev) =>
@@ -270,27 +323,28 @@ export default function Projetos() {
   const salvarRevisao = async (idRevisao: number) => {
     const revisao = revisoes.find((revisao => revisao.id === (modoTabelaRevisao === "edit" ? idRevisao : "")));
 
-    if (revisao) {
+    if (revisao && situacaoRevisao) {
       const {
         dataCriacao,
-        idProjeto,
-        sprint,
+        idProjeto: objetoProjeto,
         id,
         ...revisaoFormatada
       } = revisao;
 
       revisaoFormatada.dataAprovacao = formataDataBRParaISO(revisaoFormatada.dataAprovacao);
+      revisaoFormatada.situacao = situacaoRevisao.id;
 
       try {
         let resposta;
         if (modoTabelaRevisao === "edit") {
-          resposta = await put(`revisao/${params.id}`, revisaoFormatada);
+          resposta = await put(`revisao/${idRevisao}`, revisaoFormatada);
         }
         else if (modoTabelaRevisao === "add") {
-          resposta = await post(`revisao/${params.id}`, revisaoFormatada);
+          resposta = await post(`revisao/${idProjeto}`, revisaoFormatada);
         }
         console.log(resposta);
         setFlagGetRevisoes(prev => prev + 1);
+        setSituacaoRevisao(null);
         setSnackbar({
           open: true,
           message: modoTabelaRevisao === "add" ?
@@ -303,6 +357,8 @@ export default function Projetos() {
       }
       catch (erro) {
         console.log(erro);
+        setFlagGetRevisoes(prev => prev + 1);
+        setSituacaoRevisao(null);
         setSnackbar({
           open: true,
           message: modoTabelaRevisao === "add" ?
@@ -315,6 +371,57 @@ export default function Projetos() {
       }
     }
     setModoTabelaRevisao("view")
+  };
+  const enviarArquivoRevisao = async (arquivo: File, idRevisao: number) => {
+    if (arquivo && idRevisao) {
+      try {
+        const resposta = await postFile(`revisao/upload/${idRevisao}`, arquivo);
+        console.log(resposta);
+        setFlagGetRevisoes(prev => prev + 1);
+        setSnackbar({
+          open: true,
+          message: "Upload concluído com sucesso!",
+          severity: "success"
+        });
+      }
+      catch (erro) {
+        console.log(erro);
+        setSnackbar({
+          open: true,
+          message: "Erro ao anexar o arquivo!",
+          severity: "error"
+        });
+      }
+    }
+  };
+  const baixarArquivoRevisao = async (idRevisao: number) => {
+    if (idRevisao) {
+      try {
+        const url = `http://192.168.228.8:8082/revisao/download/${idRevisao}`;
+        const resposta = await fetch(url);
+        const blob = await resposta.blob();
+        const urlBlob = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlBlob;
+        a.download = `P${idProjeto}R${idRevisao}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(urlBlob);
+        setSnackbar({
+          open: true,
+          message: "Download concluído com sucesso!",
+          severity: "success"
+        });
+      }
+      catch (erro) {
+        console.log(erro);
+        setSnackbar({
+          open: true,
+          message: "Erro ao baixar o arquivo!",
+          severity: "error"
+        });
+      }
+    }
   };
   const deletarRevisao = (idRevisao: number) => {
     setModalConfirmacao({
@@ -351,6 +458,7 @@ export default function Projetos() {
     });
   };
 
+  // FUNÇÕES AÇÃO
   const adicionarAcao = () => {
     setModoTabelaAcao("add");
 
@@ -365,10 +473,21 @@ export default function Projetos() {
     }
 
     setAcoes([novaAcao, ...acoes]);
+    setSituacaoAcao(null);
   };
-  const editarAcao = () => {
+  const editarAcao = (idAcao: number) => {
     setModoTabelaAcao("edit");
     setAcoesBackup(acoes);
+
+    const acaoSelecionada = acoes.find(acao => acao.id === idAcao);
+    if (acaoSelecionada) {
+      const stringSituacaoAcaoSelecionada = acaoSelecionada.situacao;
+      const objetoSituacaoAcaoSelecionada = situacoes.find(situacao => situacao.nome === stringSituacaoAcaoSelecionada);
+
+      if (objetoSituacaoAcaoSelecionada) {
+        setSituacaoAcao(objetoSituacaoAcaoSelecionada);
+      }
+    }
   };
   const alterarAcao = (novaPropriedade: any, idAcao: number, nomePropriedade: string) => {
     setAcoes((prev) =>
@@ -387,7 +506,7 @@ export default function Projetos() {
   const salvarAcao = async (idAcao: number) => {
     const acao = acoes.find((acao => acao.id === (modoTabelaAcao === "edit" ? idAcao : "")));
 
-    if (acao) {
+    if (acao && situacaoAcao) {
       const {
         id,
         dataCricacao,
@@ -395,18 +514,20 @@ export default function Projetos() {
       } = acao;
 
       acaoFormatada.dataPrevista = formataDataBRParaISO(acaoFormatada.dataPrevista);
+      acaoFormatada.situacao = situacaoAcao.id;
 
       try {
         console.log(acaoFormatada.dataPrevista)
         let resposta;
         if (modoTabelaAcao === "edit") {
-          resposta = await put(`acao/${idRevisao}`, acaoFormatada);
+          resposta = await put(`acao/${idAcao}`, acaoFormatada);
         }
         else if (modoTabelaAcao === "add") {
           resposta = await post(`acao/${idRevisao}`, acaoFormatada);
         }
         console.log(resposta);
         setFlagGetAcoes(prev => prev + 1);
+        setSituacaoAcao(null);
         setSnackbar({
           open: true,
           message: modoTabelaAcao === "add" ?
@@ -419,6 +540,7 @@ export default function Projetos() {
       }
       catch (erro) {
         console.log(erro);
+        setSituacaoAcao(null);
         setSnackbar({
           open: true,
           message: modoTabelaAcao === "add" ?
@@ -432,7 +554,58 @@ export default function Projetos() {
     }
     setModoTabelaAcao("view");
   };
-  const deletarAcao = () => {
+  const enviarArquivoAcao = async (arquivo: File, idAcao: number) => {
+    if (arquivo && idAcao) {
+      try {
+        const resposta = await postFile(`acao/upload/${idAcao}`, arquivo);
+        console.log(resposta);
+        setFlagGetRevisoes(prev => prev + 1);
+        setSnackbar({
+          open: true,
+          message: "Upload concluído com sucesso!",
+          severity: "success"
+        });
+      }
+      catch (erro) {
+        console.log(erro);
+        setSnackbar({
+          open: true,
+          message: "Erro ao anexar o arquivo!",
+          severity: "error"
+        });
+      }
+    }
+  };
+  const baixarArquivoAcao = async (idAcao: number) => {
+    if (idAcao) {
+      try {
+        const url = `http://192.168.228.8:8082/acao/download/${idAcao}`;
+        const resposta = await fetch(url);
+        const blob = await resposta.blob();
+        const urlBlob = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlBlob;
+        a.download = `P${idProjeto}R${idRevisao}A${idAcao}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(urlBlob);
+        setSnackbar({
+          open: true,
+          message: "Download concluído com sucesso!",
+          severity: "success"
+        });
+      }
+      catch (erro) {
+        console.log(erro);
+        setSnackbar({
+          open: true,
+          message: "Erro ao baixar o arquivo!",
+          severity: "error"
+        });
+      }
+    }
+  };
+  const deletarAcao = (idAcao: number) => {
     setModalConfirmacao({
       open: true,
       title: "Confirmar exclusão",
@@ -442,7 +615,7 @@ export default function Projetos() {
       onConfirm: async () => {
         let resposta;
         try {
-          resposta = await del(`acao/${idRevisao}`);
+          resposta = await del(`acao/${idAcao}`);
           console.log(resposta);
           setFlagGetAcoes(prev => prev + 1);
           setSnackbar({
@@ -467,22 +640,36 @@ export default function Projetos() {
     });
   };
 
-  useEffect(() => {
-    if (dadosAcoes) {
-      console.log(dadosAcoes);
-      setAcoes(dadosAcoes);
-    }
-  }, [dadosAcoes]);
+  // ATUALIZA FLAG COM O ID DA REVISÃO SELECIONADA
+  const armazenaIdRevisao = (id: number) => {
+    setIdRevisao(id);
+  };
+
+  // BUSCA REVISÕES
   useEffect(() => {
     if (dadosRevisoes) {
-      console.log(dadosRevisoes);
       setRevisoes(dadosRevisoes);
     }
   }, [dadosRevisoes]);
 
+  // BUSCA AÇÕES
   useEffect(() => {
-    setCarregando(carregandoRevisoes || carregandoAcoes || carregandoPost || carregandoPut || carregandoDelete);
-  }, [carregandoRevisoes, carregandoAcoes, carregandoPost, carregandoPut, carregandoDelete]);
+    if (dadosAcoes) {
+      setAcoes(dadosAcoes);
+    }
+  }, [dadosAcoes]);
+
+  // BUSCA LISTA DE SITUAÇÕES
+  useEffect(() => {
+    if (dadosSituacoes) {
+      setSituacoes(dadosSituacoes);
+    }
+  }, [dadosSituacoes]);
+
+  // VERIFICA SE ALGUMA REQUISIÇÃO ESTÁ CARREGANDO
+  useEffect(() => {
+    setCarregando(carregandoSituacoes || carregandoRevisoes || carregandoAcoes || carregandoPost || carregandoPostFile || carregandoPut || carregandoDelete);
+  }, [carregandoSituacoes || carregandoRevisoes, carregandoAcoes, carregandoPost, carregandoPostFile, carregandoPut, carregandoDelete]);
 
   return (
     <Container
@@ -521,8 +708,13 @@ export default function Projetos() {
           handleSave={salvarRevisao}
           handleCancel={cancelarAlteracaoRevisao}
           handleDelete={deletarRevisao}
+          handleFileUpload={enviarArquivoRevisao}
+          handleFileDownload={baixarArquivoRevisao}
           maxHeight="30vh"
-          hideVisualizeButton
+          hasVisualizeButton={false}
+          hasAddButton
+          hasBackButton
+          hasFile
         />
       </Box>
       <Box
@@ -538,8 +730,12 @@ export default function Projetos() {
           handleSave={salvarAcao}
           handleCancel={cancelarAlteracaoAcao}
           handleDelete={deletarAcao}
+          handleFileUpload={enviarArquivoAcao}
+          handleFileDownload={baixarArquivoAcao}
           maxHeight="30vh"
-          hideVisualizeButton
+          hasVisualizeButton={false}
+          hasAddButton={idRevisao ? true : false}
+          hasFile
         />
       </Box>
       <ConfirmationModal

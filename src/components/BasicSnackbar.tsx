@@ -15,9 +15,11 @@ const BasicSnackbar: React.FC<IBasicSnackbar> = ({ open, message, severity, onCl
       open={open}
       autoHideDuration={6000}
       onClose={onClose}
-      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-    >
-      <Alert onClose={onClose} severity={severity ?? "info"} sx={{ width: "100%" }}>
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}>
+      <Alert
+        onClose={onClose}
+        severity={severity ?? "info"}
+        sx={{ width: "100%" }}>
         {message}
       </Alert>
     </Snackbar>

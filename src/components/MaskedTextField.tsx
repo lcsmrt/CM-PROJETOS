@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import { IMaskInput } from "react-imask";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
-import { NumberFormatBase, NumericFormat } from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { formataDataISOParaBR } from "../utils/formataDataISOParaBR";
 
 interface ITextMask {
@@ -65,9 +65,10 @@ interface IMaskedTextField extends Omit<TextFieldProps, "onChange"> {
   name: string;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  fontSize?: string;
 }
 
-const MaskedTextField: React.FC<IMaskedTextField> = ({ maskType, customMask, name, value, onChange, ...textFieldProps }) => {
+const MaskedTextField: React.FC<IMaskedTextField> = ({ maskType, customMask, name, value, onChange, fontSize, ...textFieldProps }) => {
   let displayValue = value;
   if (maskType === "date" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
     displayValue = formataDataISOParaBR(value);
@@ -81,7 +82,7 @@ const MaskedTextField: React.FC<IMaskedTextField> = ({ maskType, customMask, nam
       InputProps={{
         inputComponent: TextFieldMask as any,
         inputProps: { maskType, customMask, name },
-        sx: { fontSize: "12px" }
+        sx: { fontSize: fontSize }
       }}
     />
   );

@@ -19,10 +19,10 @@ export default function Projetos() {
   const [carregando, setCarregando] = useState(false);
   const [flagGet, setFlagGet] = useState(0);
   interface IRespostaProjetos { content: IProjeto[]; }
-  const { dados: dadosProjetos, carregando: carregandoProjetos, erro: erroProjetos } = useGet<IRespostaProjetos>("/projetos/projetos", [flagGet]);
-  const { post, carregando: carregandoPost, erro: erroPost } = usePost();
-  const { put, carregando: carregandoPut, erro: erroPut } = usePut();
-  const { del, carregando: carregandoDelete, erro: erroDelete } = useDelete();
+  const { dados: dadosProjetos, carregando: carregandoProjetos } = useGet<IRespostaProjetos>("/projetos/projetos", [flagGet]);
+  const { post, carregando: carregandoPost } = usePost();
+  const { put, carregando: carregandoPut } = usePut();
+  const { del, carregando: carregandoDelete } = useDelete();
 
   // SNACKBAR
   const [snackbar, setSnackbar] = useState<IBasicSnackbar>({
@@ -52,20 +52,20 @@ export default function Projetos() {
     {
       id: "titulo",
       label: "Título",
-      minWidth: 150,
-      maxWidth: 150
+      minWidth: 130,
+      maxWidth: 130
     },
     {
       id: "descricao",
       label: "Descrição",
-      minWidth: 150,
-      maxWidth: 150
+      minWidth: 200,
+      maxWidth: 200
     },
     {
       id: "solicitante",
       label: "Solicitante",
-      minWidth: 210,
-      maxWidth: 210
+      minWidth: 150,
+      maxWidth: 150
     },
     {
       id: "justificativa",
@@ -259,6 +259,8 @@ export default function Projetos() {
           handleCancel={cancelarAlteracao}
           handleDelete={deletar}
           minHeight="75vh"
+          hasVisualizeButton
+          hasAddButton
         />
       </Box>
       <ConfirmationModal

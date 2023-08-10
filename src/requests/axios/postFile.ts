@@ -1,19 +1,25 @@
 import { useState } from "react";
-import criarRequisicaoHTTP from "./http";
 import axios from "axios";
+import criarRequisicaoHTTP from "./http";
 
-function usePost<T>() {
+function usePostFile<T>() {
   const [carregando, setCarregando] = useState<boolean>(false);
   const [erro, setErro] = useState<Error | null>(null);
 
   const requisicaoHTTP = criarRequisicaoHTTP();
 
-  const post = (url: string, dados: any): Promise<T> => {
+  const postFile = (url: string, file: File): Promise<T> => {
     setCarregando(true);
     const origem = axios.CancelToken.source();
-    
+
+    const formData = new FormData();
+    formData.append('file', file);
+
     return requisicaoHTTP
-      .post<T>(url, dados, { cancelToken: origem.token })
+      .post<T>(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        cancelToken: origem.token
+      })
       .then((resposta) => {
         setCarregando(false);
         return resposta.data;
@@ -25,7 +31,7 @@ function usePost<T>() {
       });
   };
 
-  return { post, carregando, erro };
+  return { postFile, carregando, erro };
 }
 
-export default usePost;
+export default usePostFile;
