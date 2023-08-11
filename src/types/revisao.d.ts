@@ -5,6 +5,7 @@ import ISituacao from "./situacao";
 export default interface IRevisao {
   acoes: IAcao[];
   aprovador: string;
+  custo?: string;
   dataAprovacao: string;
   dataCriacao?: string;
   executor: string;

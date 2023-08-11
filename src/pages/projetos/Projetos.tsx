@@ -10,19 +10,29 @@ import usePut from "../../requests/axios/put";
 import BasicSnackbar, { IBasicSnackbar } from "../../components/BasicSnackbar";
 import ConfirmationModal, { IConfirmationModal } from "../../components/ConfirmationModal";
 import useDelete from "../../requests/axios/delete";
+import ISituacao from "../../types/situacao";
 
 export default function Projetos() {
   // NAVEGAÇÃO
   const navegar = useNavigate();
 
+  const [situacaoProjeto, setSituacaoProjeto] = useState<ISituacao | null>(null);
+  const [situacoesProjeto, setSituacoesProjeto] = useState<ISituacao[]>([]);
+
+
+
   // REQUISIÇÕES
   const [carregando, setCarregando] = useState(false);
   const [flagGet, setFlagGet] = useState(0);
+  const { dados: dadosSituacoes, carregando: carregandoSituacoes } = useGet<ISituacao[]>("util/status", [])
   interface IRespostaProjetos { content: IProjeto[]; }
   const { dados: dadosProjetos, carregando: carregandoProjetos } = useGet<IRespostaProjetos>("/projetos/projetos", [flagGet]);
   const { post, carregando: carregandoPost } = usePost();
   const { put, carregando: carregandoPut } = usePut();
   const { del, carregando: carregandoDelete } = useDelete();
+
+  // SITUAÇÕES
+  const [situacoes, setSituacoes] = useState<ISituacao[]>([]);
 
   // SNACKBAR
   const [snackbar, setSnackbar] = useState<IBasicSnackbar>({
@@ -45,8 +55,8 @@ export default function Projetos() {
     {
       id: "id",
       label: "Código",
-      minWidth: 60,
-      maxWidth: 60,
+      minWidth: 70,
+      maxWidth: 70,
       readonly: true
     },
     {
@@ -70,14 +80,30 @@ export default function Projetos() {
     {
       id: "justificativa",
       label: "Justificativa",
-      minWidth: 380,
-      maxWidth: 380
+      minWidth: 360,
+      maxWidth: 360
+    },
+    {
+      id: "situacao",
+      label: "Situação",
+      minWidth: 150,
+      maxWidth: 150,
+      comboBoxProps: {
+        options: situacoes,
+        displayKey: "nome",
+        valueKey: "id",
+        value: situacaoProjeto,
+        onChange: (newValue) => {
+          console.log(newValue)
+          setSituacaoProjeto(newValue)
+        }
+      }
     },
     {
       id: "dataAbertura",
       label: "Abertura",
-      minWidth: 100,
-      maxWidth: 100,
+      minWidth: 120,
+      maxWidth: 120,
       readonly: true,
       align: "right",
       format: (value: number | string) => {
@@ -113,11 +139,22 @@ export default function Projetos() {
     }
 
     setProjetos([novoProjeto, ...projetos]);
+    setSituacaoProjeto(null);
   }
-  const editar = () => {
+  const editar = (idProjeto: number) => {
     setModo("edit");
     setProjetosBackup(projetos);
-  }
+
+    const projetoSelecionado = projetos.find(projeto => projeto.id === idProjeto);
+    if (projetoSelecionado) {
+      const stringSituacaoSelecionada = projetoSelecionado.situacao;
+      const objetoSituacaoSelecionada = situacoes.find(situacao => situacao.nome === stringSituacaoSelecionada);
+
+      if (objetoSituacaoSelecionada) {
+        setSituacaoProjeto(objetoSituacaoSelecionada);
+      }
+    }
+  };
   const alterarProjeto = (novaPropriedade: any, idProjeto: number, nomePropriedade: string) => {
     setProjetos((prev) =>
       prev.map((projeto =>
@@ -135,8 +172,10 @@ export default function Projetos() {
   const salvar = async (idProjeto: number) => {
     const projeto = projetos.find((projeto => projeto.id === (modo === "edit" ? idProjeto : "")));
 
-    if (projeto) {
+    if (projeto && situacaoProjeto) {
       const { dataAbertura, id, ...projetoFormatado } = projeto;
+
+      projetoFormatado.situacao = situacaoProjeto.id;
 
       try {
         let resposta;
@@ -160,6 +199,7 @@ export default function Projetos() {
       }
       catch (erro) {
         console.log(erro);
+        setFlagGet(prev => prev + 1);
         setSnackbar({
           open: true,
           message: modo === "add" ?
@@ -214,10 +254,15 @@ export default function Projetos() {
       setProjetos(dadosProjetos.content);
     }
   }, [dadosProjetos]);
+  useEffect(() => {
+    if (dadosSituacoes) {
+      setSituacoes(dadosSituacoes);
+    }
+  }, [dadosSituacoes]);
 
   useEffect(() => {
-    setCarregando(carregandoProjetos || carregandoPost || carregandoPut || carregandoDelete);
-  }, [carregandoProjetos, carregandoPost, carregandoPut, carregandoDelete]);
+    setCarregando(carregandoProjetos || carregandoSituacoes || carregandoPost || carregandoPut || carregandoDelete);
+  }, [carregandoProjetos, carregandoSituacoes, carregandoPost, carregandoPut, carregandoDelete]);
 
   return (
     <Container

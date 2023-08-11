@@ -6,7 +6,8 @@ import { createTheme } from '@mui/material';
 
 const theme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
+    contrastThreshold: 4.5,
   },
 });
 
@@ -37,7 +38,7 @@ root.render(
             padding: 0;
           }
           body {
-            background-color: GhostWhite;
+            background-color: #F9F8F8;
           }
         `}
         />

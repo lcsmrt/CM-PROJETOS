@@ -8,12 +8,12 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { Box, ClickAwayListener, Fade, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
+import CancelIcon from '@mui/icons-material/Cancel';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -117,14 +117,14 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                 direction="row"
                 alignItems="center"
                 paddingLeft={"10px"}
-                sx={{ backgroundColor: "#151550" }}
+                sx={{ backgroundColor: "ForestGreen", color: "White" }}
                 height={"45px"}>
-                <IconButton onClick={goToPreviousPage}>
-                  <ArrowBackIcon fontSize="small" />
+                <IconButton color="inherit" onClick={goToPreviousPage}>
+                  <ArrowBackIcon color="inherit" fontSize="small" />
                 </IconButton>
                 <Typography
                   variant="h1"
-                  fontSize="18px"
+                  fontSize="20px"
                   marginLeft="10px">
                   {props.title}
                 </Typography>
@@ -134,11 +134,12 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                 direction="row"
                 alignItems="center"
                 paddingLeft={"56px"}
-                sx={{ backgroundColor: "#151550" }}
+                sx={{ backgroundColor: "ForestGreen", color: "White" }}
                 height={"45px"}>
                 <Typography
                   variant="h1"
-                  fontSize="18px">
+                  fontSize="20px"
+                  color="inherit">
                   {props.title}
                 </Typography>
               </Stack>
@@ -162,9 +163,10 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                     sx={{
                       maxWidth: column.maxWidth,
                       minWidth: column.minWidth,
-                      paddingTop: "0.9%",
-                      paddingBottom: "0.9%",
+                      paddingTop: "6px",
+                      paddingBottom: "6px",
                       fontSize: "13px",
+                      height: "45px"
                     }}>
                     {column.label}
                   </TableCell>
@@ -198,8 +200,8 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                                 sx={{
                                   maxWidth: column.maxWidth,
                                   minWidth: column.minWidth,
-                                  paddingTop: "0.8%",
-                                  paddingBottom: "0.8%",
+                                  paddingTop: "9px",
+                                  paddingBottom: "9px",
                                   fontSize: "12px"
                                 }}
                               >
@@ -214,7 +216,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                                         onChange={(event) => props.handleDataChange(event.target.value, row.id, column.id)}
                                         size="small"
                                         variant="standard"
-                                        sx={{ minWidth: (column.minWidth ? column.minWidth - 4 : column.minWidth), maxWidth: (column.maxWidth ? column.maxWidth - 4 : column.maxWidth) }}
+                                        sx={{ minWidth: (column.minWidth ? column.minWidth - 5 : column.minWidth), maxWidth: (column.maxWidth ? column.maxWidth - 5 : column.maxWidth) }}
                                         fontSize="12px"
                                         fullWidth
                                       />
@@ -227,7 +229,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                                         onChange={column.comboBoxProps.onChange}
                                         size="small"
                                         variant="standard"
-                                        sx={{ minWidth: (column.minWidth ? column.minWidth - 4 : column.minWidth), maxWidth: (column.maxWidth ? column.maxWidth - 4 : column.maxWidth) }}
+                                        sx={{ minWidth: (column.minWidth ? column.minWidth - 5 : column.minWidth), maxWidth: (column.maxWidth ? column.maxWidth - 5 : column.maxWidth) }}
                                         fontSize="12px"
                                         fullWidth
                                       />
@@ -238,7 +240,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                                         color="primary"
                                         value={value}
                                         onChange={(event) => props.handleDataChange(event.target.value, row.id, column.id)}
-                                        sx={{ minWidth: (column.minWidth ? column.minWidth - 4 : column.minWidth), maxWidth: (column.maxWidth ? column.maxWidth - 4 : column.maxWidth) }}
+                                        sx={{ minWidth: (column.minWidth ? column.minWidth - 5 : column.minWidth), maxWidth: (column.maxWidth ? column.maxWidth - 5 : column.maxWidth) }}
                                         InputProps={{ sx: { fontSize: "12px" } }}
                                         fullWidth
                                       />
@@ -301,14 +303,14 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
             width={0}>
             {props.hasAddButton &&
               <IconButton
-                size="large"
+                size="medium"
                 color="success"
                 onClick={() => {
                   props.handleAdd();
                   setSelectedRowId("")
                 }}
               >
-                <AddIcon />
+                <AddCircleIcon fontSize="medium" />
               </IconButton>
             }
           </Box>
@@ -321,7 +323,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
             width={0}>
             {props.hasVisualizeButton &&
               <IconButton
-                size="large"
+                size="medium"
                 sx={{ marginBottom: 1 }}
                 onClick={(event) => {
                   event.stopPropagation();
@@ -330,29 +332,29 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                   }
                 }}>
                 <VisibilityIcon
-                  fontSize="small" />
+                  fontSize="medium" />
               </IconButton>
             }
             <IconButton
-              size="large"
+              size="medium"
               onClick={(event) => {
                 event.stopPropagation();
                 props.handleEdit(selectedRowId as number);
               }}>
               <EditIcon
-                fontSize="small" />
+                fontSize="medium" />
             </IconButton>
             {props.hasFile &&
               <>
                 <>
                   <IconButton
-                    size="large"
+                    size="medium"
                     onClick={(event) => {
                       event.stopPropagation();
                       fileInputRef.current?.click();
                     }}>
                     <AttachFileIcon
-                      fontSize="small" />
+                      fontSize="medium" />
                   </IconButton>
                   <input
                     type="file"
@@ -370,7 +372,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                   />
                 </>
                 <IconButton
-                  size="large"
+                  size="medium"
                   onClick={(event) => {
                     event.stopPropagation();
                     if (props.handleFileDownload) {
@@ -378,7 +380,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                     }
                   }}>
                   <FileDownloadIcon
-                    fontSize="small" />
+                    fontSize="medium" />
                 </IconButton>
               </>
             }
@@ -386,14 +388,14 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
           <Box
             width={0}>
             <IconButton
-              size="large"
+              size="medium"
               color="error"
               onClick={(event) => {
                 event.stopPropagation();
                 props.handleDelete(selectedRowId as number);
               }}>
               <DeleteIcon
-                fontSize="small" />
+                fontSize="medium" />
             </IconButton>
           </Box>
         </Stack>
@@ -404,25 +406,25 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
           <Box
             width={0}>
             <IconButton
-              size="large"
+              size="medium"
               sx={{ marginBottom: 1 }}
               onClick={(event) => {
                 event.stopPropagation();
                 props.handleSave(selectedRowId as number)
               }}>
               <SaveIcon
-                fontSize="small" />
+                fontSize="medium" />
             </IconButton>
             <IconButton
-              size="large"
+              size="medium"
               color="error"
               onClick={(event) => {
                 event.stopPropagation();
                 props.handleCancel();
                 setSelectedRowId(null)
               }}>
-              <CloseIcon
-                fontSize="small" />
+              <CancelIcon
+                fontSize="medium" />
             </IconButton>
           </Box>
         </Stack>

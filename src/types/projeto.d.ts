@@ -5,6 +5,7 @@ export default interface IProjeto {
   descricao: string,
   id?: number | string,
   justificativa: string,
+  situacao?: ISituacao | string | number;
   solicitante: string,
   revisoes?: IRevisao[],
   titulo: string,

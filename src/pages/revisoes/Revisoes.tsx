@@ -148,6 +148,23 @@ export default function Projetos() {
       }
     },
     {
+      id: "custo",
+      label: "Custo",
+      minWidth: 100,
+      maxWidth: 100,
+      align: "right",
+      maskType: "money",
+      format: (value: number | string) => {
+        if (typeof (value) === "string" && value !== "") {
+          return formataDinheiro(value);
+        }
+        else if (!value) {
+          return ""
+        }
+        return String(value);
+      }
+    },
+    {
       id: "dataAprovacao",
       label: "Aprovação",
       minWidth: 120,
