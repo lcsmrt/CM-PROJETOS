@@ -8,12 +8,12 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { Box, ClickAwayListener, Fade, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+import ClearIcon from '@mui/icons-material/Clear';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -310,7 +310,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                   setSelectedRowId("")
                 }}
               >
-                <AddCircleIcon fontSize="medium" />
+                <AddIcon fontSize="medium" />
               </IconButton>
             }
           </Box>
@@ -423,7 +423,7 @@ const StickyHeadTable: React.FC<IStickyHeadTable> = ({ ...props }) => {
                 props.handleCancel();
                 setSelectedRowId(null)
               }}>
-              <CancelIcon
+              <ClearIcon
                 fontSize="medium" />
             </IconButton>
           </Box>
